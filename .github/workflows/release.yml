@@ -1,0 +1,81 @@
+name: Release
+
+# Push a tag like v1.0.0 (matching Cargo.toml and assets/manifest.json) to
+# build both Linux targets and publish dist/com.mroneleg.kdeconnect.streamDeckPlugin.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          # Built on 22.04 so the binaries also run on older glibc (2.35+).
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-22.04
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches the version
+        run: |
+          cargo_version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -n1)
+          manifest_version=$(jq -r .Version assets/manifest.json)
+          if [ "v$cargo_version" != "$GITHUB_REF_NAME" ] || [ "$cargo_version" != "$manifest_version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME, Cargo.toml $cargo_version, manifest $manifest_version must match"
+            exit 1
+          fi
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - name: Rename binary
+        run: mv target/${{ matrix.target }}/release/kdeconnect-opendeck kdeconnect-opendeck-${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kdeconnect-opendeck-${{ matrix.target }}
+          path: kdeconnect-opendeck-${{ matrix.target }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: bin
+          merge-multiple: true
+
+      - name: Package
+        run: BIN_DIR=bin scripts/package.sh
+
+      - name: Check both targets were packaged
+        run: |
+          for triple in x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu; do
+            test -x dist/com.mroneleg.kdeconnect.sdPlugin/kdeconnect-opendeck-$triple
+          done
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/com.mroneleg.kdeconnect.streamDeckPlugin \
+            --title "$GITHUB_REF_NAME" --generate-notes

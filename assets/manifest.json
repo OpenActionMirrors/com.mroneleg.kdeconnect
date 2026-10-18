@@ -1,0 +1,385 @@
+{
+	"Name": "KDE Connect",
+	"Description": "Control media, volume, calls, and more on KDE Connect paired phones, tablets, and computers",
+	"Author": "Mr. One Leg",
+	"Version": "1.0.0",
+	"SDKVersion": 2,
+	"Category": "KDE Connect",
+	"CategoryIcon": "icons/category",
+	"Icon": "icons/plugin",
+	"URL": "https://github.com/mroneleg/kde-connect-opendeck",
+	"CodePaths": {
+		"x86_64-unknown-linux-gnu": "kdeconnect-opendeck-x86_64-unknown-linux-gnu",
+		"aarch64-unknown-linux-gnu": "kdeconnect-opendeck-aarch64-unknown-linux-gnu"
+	},
+	"CodePathLin": "kdeconnect-opendeck-x86_64-unknown-linux-gnu",
+	"PropertyInspectorPath": "pi/index.html",
+	"OS": [
+		{
+			"Platform": "linux"
+		}
+	],
+	"Actions": [
+		{
+			"UUID": "com.mroneleg.kdeconnect.nowplaying",
+			"Name": "Now Playing",
+			"Tooltip": "Album art and track info; press to play/pause",
+			"Icon": "icons/nowplaying",
+			"States": [
+				{
+					"Image": "icons/nowplaying",
+					"ShowTitle": false
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.playpause",
+			"Name": "Play / Pause",
+			"Tooltip": "Toggle playback on the device",
+			"Icon": "icons/playpause",
+			"States": [
+				{
+					"Image": "icons/playpause"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.next",
+			"Name": "Next Track",
+			"Tooltip": "Skip to the next track on the device",
+			"Icon": "icons/next",
+			"States": [
+				{
+					"Image": "icons/next"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.previous",
+			"Name": "Previous Track",
+			"Tooltip": "Go to the previous track on the device",
+			"Icon": "icons/previous",
+			"States": [
+				{
+					"Image": "icons/previous"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.volumeup",
+			"Name": "Volume Up",
+			"Tooltip": "Raise the device's media volume (hold to repeat)",
+			"Icon": "icons/volumeup",
+			"States": [
+				{
+					"Image": "icons/volumeup"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.volumedown",
+			"Name": "Volume Down",
+			"Tooltip": "Lower the device's media volume (hold to repeat)",
+			"Icon": "icons/volumedown",
+			"States": [
+				{
+					"Image": "icons/volumedown"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.mute",
+			"Name": "Mute",
+			"Tooltip": "Mute the device's media volume; press again to restore",
+			"Icon": "icons/mute",
+			"States": [
+				{
+					"Image": "icons/mute"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.seekback",
+			"Name": "Seek Back",
+			"Tooltip": "Jump back in the current track",
+			"Icon": "icons/seekback",
+			"States": [
+				{
+					"Image": "icons/seekback"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.seekforward",
+			"Name": "Seek Forward",
+			"Tooltip": "Jump forward in the current track",
+			"Icon": "icons/seekforward",
+			"States": [
+				{
+					"Image": "icons/seekforward"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.switchplayer",
+			"Name": "Switch Player",
+			"Tooltip": "Cycle through the device's media players",
+			"Icon": "icons/switchplayer",
+			"States": [
+				{
+					"Image": "icons/switchplayer"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.battery",
+			"Name": "Battery",
+			"Tooltip": "Show the device's battery level",
+			"Icon": "icons/battery",
+			"States": [
+				{
+					"Image": "icons/battery"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.notifications",
+			"Name": "Notifications",
+			"Tooltip": "Count of the device's notifications",
+			"Icon": "icons/notifications",
+			"States": [
+				{
+					"Image": "icons/notifications"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.findmyphone",
+			"Name": "Find My Device",
+			"Tooltip": "Make the device ring",
+			"Icon": "icons/findmyphone",
+			"States": [
+				{
+					"Image": "icons/findmyphone"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.clipboard",
+			"Name": "Send Clipboard",
+			"Tooltip": "Send this computer's clipboard to the device",
+			"Icon": "icons/clipboard",
+			"States": [
+				{
+					"Image": "icons/clipboard"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.remotecommand",
+			"Name": "Run Command (PC)",
+			"Tooltip": "Run a command another computer offers over KDE Connect",
+			"Icon": "icons/remotecommand",
+			"States": [
+				{
+					"Image": "icons/remotecommand"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.lock",
+			"Name": "Lock / Unlock (PC)",
+			"Tooltip": "Lock or unlock another computer",
+			"Icon": "icons/lock",
+			"States": [
+				{
+					"Image": "icons/lock"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.pcvolumeup",
+			"Name": "PC Volume Up",
+			"Tooltip": "Raise another computer's volume (hold to repeat)",
+			"Icon": "icons/pcvolumeup",
+			"States": [
+				{
+					"Image": "icons/pcvolumeup"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.pcvolumedown",
+			"Name": "PC Volume Down",
+			"Tooltip": "Lower another computer's volume (hold to repeat)",
+			"Icon": "icons/pcvolumedown",
+			"States": [
+				{
+					"Image": "icons/pcvolumedown"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.pcmute",
+			"Name": "PC Mute",
+			"Tooltip": "Mute or unmute another computer's output",
+			"Icon": "icons/pcmute",
+			"States": [
+				{
+					"Image": "icons/pcmute"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.call",
+			"Name": "Incoming Call",
+			"Tooltip": "Show who's calling the phone; press to dismiss",
+			"Icon": "icons/call",
+			"States": [
+				{
+					"Image": "icons/call"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.signal",
+			"Name": "Signal",
+			"Tooltip": "Show the phone's cellular signal and network type",
+			"Icon": "icons/signal",
+			"States": [
+				{
+					"Image": "icons/signal"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.sms",
+			"Name": "SMS Template",
+			"Tooltip": "Send a preset text message (press twice to confirm)",
+			"Icon": "icons/sms",
+			"States": [
+				{
+					"Image": "icons/sms"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": false
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.share",
+			"Name": "Share Link",
+			"Tooltip": "Open a URL or send text on the device",
+			"Icon": "icons/share",
+			"States": [
+				{
+					"Image": "icons/share"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"UUID": "com.mroneleg.kdeconnect.ping",
+			"Name": "Ping",
+			"Tooltip": "Send a ping notification to the device",
+			"Icon": "icons/ping",
+			"States": [
+				{
+					"Image": "icons/ping"
+				}
+			],
+			"Controllers": [
+				"Keypad"
+			],
+			"SupportedInMultiActions": true
+		}
+	]
+}

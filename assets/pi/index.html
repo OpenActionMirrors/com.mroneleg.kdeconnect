@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>KDE Connect</title>
+  <style>
+    body { font-family: sans-serif; font-size: 13px; color: #d4d4d8; background: transparent; margin: 0; padding: 8px; }
+    .row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .check { flex-direction: row; align-items: center; gap: 6px; }
+    label { color: #a1a1aa; }
+    select, input[type=text], input[type=number], textarea { background: #27272a; color: #fafafa; border: 1px solid #3f3f46; border-radius: 4px; padding: 4px 6px; font: inherit; }
+    textarea { resize: vertical; min-height: 48px; }
+    button { background: #3f3f46; color: #fafafa; border: 0; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+    .hint { color: #71717a; font-size: 11px; }
+    .warn { color: #f59e0b; font-size: 12px; margin-bottom: 10px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <label for="deviceId">Device</label>
+    <select id="deviceId"><option value="">Auto (first that supports this)</option></select>
+  </div>
+  <div id="unsupported" class="warn hidden"></div>
+
+  <div data-for="nowplaying playpause next previous volumeup volumedown mute seekback seekforward" class="row hidden">
+    <label for="player">Player</label>
+    <select id="player"><option value="">Current player</option></select>
+    <span class="hint">Picking a player switches KDE Connect's active player before each press.</span>
+  </div>
+
+  <div data-for="nowplaying" class="hidden">
+    <div class="row">
+      <label for="pressAction">Key press</label>
+      <select id="pressAction">
+        <option value="PlayPause">Play / Pause</option>
+        <option value="Next">Next track</option>
+        <option value="none">Do nothing</option>
+      </select>
+    </div>
+    <div class="row check"><input id="showArt" type="checkbox"><label for="showArt">Show album art</label></div>
+    <div class="row check"><input id="showText" type="checkbox"><label for="showText">Show title / artist</label></div>
+  </div>
+
+  <div data-for="pcvolumeup pcvolumedown pcmute" class="row hidden">
+    <label for="sink">Audio output</label>
+    <select id="sink"><option value="">Default output</option></select>
+  </div>
+
+  <div data-for="volumeup volumedown pcvolumeup pcvolumedown" class="row hidden">
+    <label for="volumeStep">Step (%)</label>
+    <input id="volumeStep" type="number" min="1" max="50" step="1">
+    <span class="hint">Hold the key to keep stepping.</span>
+  </div>
+
+  <div data-for="seekback seekforward" class="row hidden">
+    <label for="seekSeconds">Jump (seconds)</label>
+    <input id="seekSeconds" type="number" min="1" max="600" step="1">
+  </div>
+
+  <div data-for="notifications" class="hidden">
+    <div class="row check"><input id="includeSilent" type="checkbox"><label for="includeSilent">Count silent notifications</label></div>
+    <span class="hint">Silent ones are low-priority notifications such as ongoing media or system status.</span>
+  </div>
+
+  <div data-for="remotecommand" class="row hidden">
+    <label for="commandKey">Command</label>
+    <select id="commandKey"><option value="">Choose a command</option></select>
+    <span class="hint">Commands are set up on the other computer, in its KDE Connect "Run Command" settings.</span>
+  </div>
+
+  <div data-for="sms" class="hidden">
+    <div class="row">
+      <label for="smsDestination">Phone number</label>
+      <input id="smsDestination" type="text" placeholder="+15550100">
+    </div>
+    <div class="row">
+      <label for="smsMessage">Message</label>
+      <textarea id="smsMessage" placeholder="On my way"></textarea>
+    </div>
+    <div class="row">
+      <label for="smsLabel">Key label</label>
+      <input id="smsLabel" type="text" placeholder="Who it goes to">
+      <span class="hint">Press once to arm, again within 3 seconds to send.</span>
+    </div>
+  </div>
+
+  <div data-for="share" class="hidden">
+    <div class="row">
+      <label for="shareTarget">URL or text</label>
+      <input id="shareTarget" type="text" placeholder="https://example.com">
+      <span class="hint">URLs open on the device; anything else is sent as text.</span>
+    </div>
+    <div class="row">
+      <label for="shareLabel">Key label</label>
+      <input id="shareLabel" type="text">
+    </div>
+  </div>
+
+  <div data-for="ping" class="row hidden">
+    <label for="pingMessage">Message (optional)</label>
+    <input id="pingMessage" type="text" placeholder="Ping!">
+  </div>
+
+  <button id="refresh" type="button">Refresh devices</button>
+
+  <script>
+    const DEFAULTS = {
+      deviceId: '', player: '', showArt: true, showText: true, pressAction: 'PlayPause', volumeStep: 5, seekSeconds: 10,
+      includeSilent: false, commandKey: '', sink: '', smsDestination: '', smsMessage: '', smsLabel: '',
+      shareTarget: '', shareLabel: '', pingMessage: '',
+    };
+    const CHECKBOXES = ['showArt', 'showText', 'includeSilent'];
+    const NUMBERS = ['volumeStep', 'seekSeconds'];
+    const FIELDS = Object.keys(DEFAULTS);
+    const $ = (id) => document.getElementById(id);
+    let socket;
+    let uuid;
+    let action;
+    let settings = { ...DEFAULTS };
+
+    function sendToPlugin(payload) {
+      socket.send(JSON.stringify({ event: 'sendToPlugin', action, context: uuid, payload }));
+    }
+
+    function readField(id) {
+      if (CHECKBOXES.includes(id)) return $(id).checked;
+      if (NUMBERS.includes(id)) return Math.max(1, Number($(id).value) || DEFAULTS[id]);
+      return $(id).value;
+    }
+
+    function save(event) {
+      settings = Object.fromEntries(FIELDS.map((id) => [id, readField(id)]));
+      socket.send(JSON.stringify({ event: 'setSettings', context: uuid, payload: settings }));
+      // A different device has different commands, outputs and players.
+      if (event?.target?.id === 'deviceId') setTimeout(() => sendToPlugin({ type: 'inspect' }), 300);
+    }
+
+    function fillSelect(select, first, items, current) {
+      select.replaceChildren(new Option(first, ''));
+      for (const { value, label } of items) select.add(new Option(label, value));
+      // Keep a saved value visible even if it's currently offline.
+      if (current && ![...select.options].some((o) => o.value === current)) select.add(new Option(`${current} (offline)`, current));
+      select.value = current || '';
+    }
+
+    function applySettings() {
+      for (const id of FIELDS) {
+        if ($(id).tagName === 'SELECT') continue;
+        if (CHECKBOXES.includes(id)) $(id).checked = settings[id];
+        else $(id).value = settings[id];
+      }
+      $('pressAction').value = settings.pressAction;
+      fillSelect($('deviceId'), 'Auto (first that supports this)', [], settings.deviceId);
+      fillSelect($('player'), 'Current player', [], settings.player);
+      fillSelect($('commandKey'), 'Choose a command', [], settings.commandKey);
+      fillSelect($('sink'), 'Default output', [], settings.sink);
+    }
+
+    // Entry point called by OpenDeck / Stream Deck.
+    window.connectElgatoStreamDeckSocket = (port, inUUID, registerEvent, _info, actionInfo) => {
+      uuid = inUUID;
+      const parsed = JSON.parse(actionInfo);
+      action = parsed.action;
+      settings = { ...DEFAULTS, ...(parsed.payload?.settings || {}) };
+      const shortName = action.split('.').pop();
+      for (const section of document.querySelectorAll('[data-for]')) {
+        section.classList.toggle('hidden', !section.dataset.for.split(' ').includes(shortName));
+      }
+      applySettings();
+
+      socket = new WebSocket(`ws://127.0.0.1:${port}`);
+      socket.onopen = () => socket.send(JSON.stringify({ event: registerEvent, uuid }));
+      socket.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.event !== 'sendToPropertyInspector' || message.payload?.type !== 'inspectorData') return;
+        const { devices, players, commands, sinks, supported, deviceName } = message.payload;
+        fillSelect($('deviceId'), 'Auto (first that supports this)', devices.map((d) => ({ value: d.id, label: d.name })), settings.deviceId);
+        fillSelect($('player'), 'Current player', players.map((p) => ({ value: p, label: p })), settings.player);
+        fillSelect($('commandKey'), 'Choose a command', commands, settings.commandKey);
+        fillSelect($('sink'), 'Default output', sinks, settings.sink);
+        const warning = !deviceName
+          ? 'No reachable device supports this key.'
+          : supported ? '' : `${deviceName} doesn't support this key.`;
+        $('unsupported').textContent = warning;
+        $('unsupported').classList.toggle('hidden', !warning);
+      };
+    };
+
+    for (const id of FIELDS) $(id).addEventListener('change', save);
+    $('refresh').addEventListener('click', () => sendToPlugin({ type: 'refresh' }));
+  </script>
+</body>
+</html>

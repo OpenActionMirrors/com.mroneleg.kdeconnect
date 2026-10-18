@@ -1,0 +1,49 @@
+[package]
+name = "kdeconnect-opendeck"
+version = "1.0.0"
+edition = "2024"
+description = "OpenAction / OpenDeck plugin for KDE Connect: media, volume, battery, notifications, calls and more"
+license = "MIT"
+authors = ["Mr. One Leg"]
+repository = "https://github.com/mroneleg/kde-connect-opendeck"
+readme = "README.md"
+publish = false
+
+[lib]
+name = "kdeconnect_opendeck"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kdeconnect-opendeck"
+path = "src/main.rs"
+
+# Regenerates assets/icons from the runtime SVG renderers: `cargo run --features icons --bin build-icons`
+[[bin]]
+name = "build-icons"
+path = "src/bin/build_icons.rs"
+required-features = ["icons"]
+
+[features]
+icons = ["dep:resvg"]
+
+[dependencies]
+anyhow = "1"
+base64 = "0.23"
+futures-util = "0.3"
+log = "0.4"
+openaction = "2.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+simplelog = "0.12"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "process", "fs"] }
+zbus = { version = "6", default-features = false, features = ["tokio", "proxy"] }
+resvg = { version = "0.48", optional = true }
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+
+[dev-dependencies]
+# The fake daemon in examples/ implements D-Bus objects.
+zbus = { version = "6", default-features = false, features = ["tokio", "proxy", "service"] }
